@@ -4,7 +4,7 @@ MAINTAINER joshhsoj1902
 
 RUN apk add --no-cache sed perl bash
 
-#Download hlxce and confirgure it
+#Download hlxce and configure it
 RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-edition/downloads/hlxce_1_6_19.tar.gz \
   && tar -xvf /tmp/hlxce_1_6_19.tar.gz -C /tmp/ \
   && cp -rp /tmp/web/* /www/ \
@@ -34,11 +34,11 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   #Modify start script
   && ln -sf /dev/stdout /var/log/apache2/access.log \
   && sed -i '/tail -f \/var\/log\/apache2\/access.log/c\#Start hlstats script' /start.sh \
-  && echo "while true; do cd /var/hlxce/scripts && ./run_hlstats start; sleep 300; done" >> /start.sh \
+  && echo "while true; do cd /var/hlxce/scripts && ./run_hlstats start; sleep 300; done" >> /start.sh
 
 #Setup MySQL
 RUN  sh -c "/usr/bin/mysqld_safe --skip-grant-tables --bind-address 0.0.0.0 --user mysql &" \
-  && sleep 3 && mysql -uroot -e "create database hlstatsx;" \
+  && sleep 10 && mysql -uroot -e "create database hlstatsx;" \
   && mysql -uhlxuser -phlxpassword hlstatsx < /tmp/sql/install.sql \
   && echo "Should likely shutdown mysql cleanly"
 
