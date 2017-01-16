@@ -2,7 +2,11 @@ FROM janes/alpine-lamp:latest
 
 MAINTAINER joshhsoj1902
 
-RUN apk add --no-cache sed perl bash
+RUN apk add --no-cache  sed \
+                        perl \
+                        perl-dbi \
+                        perl-dbd-mysql \
+                        bash
 
 #Download hlxce and configure it
 RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-edition/downloads/hlxce_1_6_19.tar.gz \
@@ -19,6 +23,9 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   && sed -i.bac 's/DBUsername ""/DBUsername "hlxuser"/' /var/hlxce/scripts/hlstats.conf \
   && sed -i.bac 's/DBPassword ""/DBPassword "hlxpassword"/' /var/hlxce/scripts/hlstats.conf \
   && sed -i.bac 's/DBName ""/DBName "hlstatsx"/' /var/hlxce/scripts/hlstats.conf \
+  #Override log file
+  && sed -i.bac 's/local LOG=${LOGDIR}\/hlstats_${PORT}_`date +${LOGDATE_FORMAT}`/local LOG=${LOGDIR}\/hlstats.log/' /var/hlxce/scripts/run_hlstats \
+  && ln -sf /dev/stdout /var/hlxce/scripts/hlstats.log \
   #Script need execute
   && chmod +x  /var/hlxce/scripts/hlstats-awards.pl \
             /var/hlxce/scripts/hlstats.pl \
@@ -34,7 +41,8 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   #Modify start script
   && ln -sf /dev/stdout /var/log/apache2/access.log \
   && sed -i '/tail -f \/var\/log\/apache2\/access.log/c\#Start hlstats script' /start.sh \
-  && echo "while true; do cd /var/hlxce/scripts && ./run_hlstats start; sleep 300; done" >> /start.sh
+  && echo "cd /var/hlxce/scripts && ./run_hlstats start" >> /start.sh \
+  && echo "tail -f /var/hlxce/scripts/hlstats.log" >> /start.sh
 
 #Setup MySQL
 RUN  sh -c "/usr/bin/mysqld_safe --skip-grant-tables --bind-address 0.0.0.0 --user mysql &" \
