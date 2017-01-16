@@ -42,6 +42,6 @@ RUN  sh -c "/usr/bin/mysqld_safe --skip-grant-tables --bind-address 0.0.0.0 --us
   && mysql -uhlxuser -phlxpassword hlstatsx < /tmp/sql/install.sql \
   && echo "Should likely shutdown mysql cleanly"
 
-VOLUME ["/var/lib/mysql"]
+VOLUME ["mysql:/var/lib/mysql"]
 
 #CMD ["ogpmanager"]
