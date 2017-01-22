@@ -27,6 +27,8 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   && sed -i.bac 's/DBName ""/DBName "hlstatsx"/' /var/hlxce/scripts/hlstats.conf \
   #Override log file
   && sed -i.bac 's/local LOG=${LOGDIR}\/hlstats_${PORT}_`date +${LOGDATE_FORMAT}`/local LOG=${LOGDIR}\/hlstats.log/' /var/hlxce/scripts/run_hlstats \
+  && mkdir /var/hlxce/scripts/logs \
+  && touch /var/hlxce/scripts/logs/hlstats.log \
   && ln -sf /dev/stdout /var/hlxce/scripts/logs/hlstats.log \
   #Script need execute
   && chmod +x  /var/hlxce/scripts/hlstats-awards.pl \
