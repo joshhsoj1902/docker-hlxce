@@ -11,9 +11,10 @@ RUN apk add --no-cache  sed \
 #Download hlxce and configure it
 RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-edition/downloads/hlxce_1_6_19.tar.gz \
   && tar -xvf /tmp/hlxce_1_6_19.tar.gz -C /tmp/ \
-  && cp -rp /tmp/web/* /www/ \
+  && rm -rf /tmp/hlxce_1_6_19.tar.gz \
+  && mv /tmp/web/* /www/ \
   && mkdir /var/hlxce \
-  && cp -rp /tmp/scripts /var/hlxce \
+  && mv /tmp/scripts /var/hlxce \
   && mv /www/updater /www/updater.bac \
   #Web config file
   && sed -i.bak 's/define("DB_ADDR", "localhost");/define("DB_ADDR", "127.0.0.1");/' /www/config.php \
@@ -41,18 +42,25 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   && (crontab -u root -l; echo "*/5 * * * * cd /var/hlxce/scripts/ && ./run_hlstats start >/dev/null 2>&1" ) \
     | crontab -u root - \
   && (crontab -u root -l; echo "15 00 * * * cd /var/hlxce/scripts/ && ./hlstats-awards.pl >/dev/null 2>&1" ) \
-  | crontab -u root - \
-  #Modify start script
-  && ln -sf /dev/stdout /var/log/apache2/access.log \
-  && sed -i '/tail -f \/var\/log\/apache2\/access.log/c\#Start hlstats script' /start.sh \
-  && echo "cd /var/hlxce/scripts && ./run_hlstats start" >> /start.sh \
-  && echo "tail -f /var/hlxce/scripts/hlstats.log" >> /start.sh
+  | crontab -u root -
 
 #Setup MySQL
 RUN  sh -c "/usr/bin/mysqld_safe --skip-grant-tables --bind-address 0.0.0.0 --user mysql &" \
   && sleep 10 && mysql -uroot -e "create database hlstatsx;" \
   && mysql -uhlxuser -phlxpassword hlstatsx < /tmp/sql/install.sql \
-  && echo "Should likely shutdown mysql cleanly"
+  && echo "Should likely shutdown mysql cleanly" \
+  && rm -rf /tmp/*
+
+#Modify start script
+# && ln -sf /dev/stdout /var/log/apache2/access.log \
+RUN sed -i '/tail -f \/var\/log\/apache2\/access.log/c\#Start hlstats script' /start.sh \
+  && echo "( umask 0 && truncate -s0 /var/log/apache2/{access,error}.log )" >> /start.sh \
+  && echo "sh -c \"tail -n0 -F /var/log/apache2/* &" >> /dev/stdout \" >> /start.sh \
+  && echo "sh -c \"tail -n0 -F /var/hlxce/scripts/logs/* &" >> /dev/stdout \" >> /start.sh \
+  && echo "sh -c \"tail -n0 -F /var/lib/mysql/error.log &" >> /dev/stdout \" >> /start.sh \
+  && echo "cd /var/hlxce/scripts && ./run_hlstats start" >> /start.sh \
+  && echo "touch /var/hlxce/scripts/hlstats.log" >> /start.sh \
+  && echo "tail -f /var/hlxce/scripts/hlstats.log" >> /start.sh
 
 VOLUME ["mysql:/var/lib/mysql"]
 
