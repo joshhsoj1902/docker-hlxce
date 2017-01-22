@@ -14,12 +14,13 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   && cp -rp /tmp/web/* /www/ \
   && mkdir /var/hlxce \
   && cp -rp /tmp/scripts /var/hlxce \
+  && mv /www/updater /www/updater.bac \
   #Web config file
   && sed -i.bak 's/define("DB_NAME", "");/define("DB_NAME", "hlstatsx");/' /www/config.php \
   && sed -i.bak 's/define("DB_USER", "");/define("DB_USER", "hlxuser");/' /www/config.php \
   && sed -i.bak 's/define("DB_PASS", "");/define("DB_PASS", "hlxpassword");/' /www/config.php \
   #Script config file
-  && sed -i.bac 's/DBHost ""/DBHost "localhost"/' /var/hlxce/scripts/hlstats.conf \
+  && sed -i.bac 's/DBHost ""/DBHost "127.0.0.1"/' /var/hlxce/scripts/hlstats.conf \
   && sed -i.bac 's/DBUsername ""/DBUsername "hlxuser"/' /var/hlxce/scripts/hlstats.conf \
   && sed -i.bac 's/DBPassword ""/DBPassword "hlxpassword"/' /var/hlxce/scripts/hlstats.conf \
   && sed -i.bac 's/DBName ""/DBName "hlstatsx"/' /var/hlxce/scripts/hlstats.conf \
