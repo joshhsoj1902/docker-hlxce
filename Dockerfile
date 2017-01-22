@@ -16,7 +16,7 @@ RUN wget -P /tmp/ https://bitbucket.org/Maverick_of_UC/hlstatsx-community-editio
   && cp -rp /tmp/scripts /var/hlxce \
   && mv /www/updater /www/updater.bac \
   #Web config file
-  && sed -i.bak 's/define("DB_HOST", "localhost");/define("DB_HOST", "127.0.0.1");/' /www/config.php \
+  && sed -i.bak 's/define("DB_ADDR", "localhost");/define("DB_ADDR", "127.0.0.1");/' /www/config.php \
   && sed -i.bak 's/define("DB_NAME", "");/define("DB_NAME", "hlstatsx");/' /www/config.php \
   && sed -i.bak 's/define("DB_USER", "");/define("DB_USER", "hlxuser");/' /www/config.php \
   && sed -i.bak 's/define("DB_PASS", "");/define("DB_PASS", "hlxpassword");/' /www/config.php \
